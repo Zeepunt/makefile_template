@@ -1,0 +1,1 @@
+obj-y += func_b.o
