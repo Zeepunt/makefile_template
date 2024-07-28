@@ -1,0 +1,15 @@
+#
+# Copyright (c) 2024 by Zeepunt, All Rights Reserved. 
+#
+
+# @ 用来控制命令的显示, 比如 @rm xxx, 表示只显示必要的执行结果而不显示具体的执行命令, 也就是不会打印出 rm xxx 这一语句
+Q := @
+
+# quiet_ 表示编译时使用美化输出, 为空表示使用默认输出 
+quiet := quiet_
+
+build := -f $(ROOT_PATH)/scripts/Makefile.build
+
+# 如果使用的方式是 $(call cmd,cc)
+# 扩展后的写法是 @$(if $(quiet_cmd_cc)),echo '  $(quiet_cmd_cc)' && $(cmd_cc)
+cmd = @$(if $($(quiet)cmd_$(1)),echo '  $($(quiet)cmd_$(1))' &&) $(cmd_$(1))
