@@ -1,0 +1,16 @@
+menu "Library B Configuration"
+
+config LIB_B_ENABLE
+    bool "Enable Function B"
+    default n
+    help
+        Enable this option to include lib B.
+
+config LIB_B_PACKAGE
+    bool "Package Function B"
+    depends on LIB_B_ENABLE
+    default n
+    help
+        Enable this option to Package Function B as Library B.
+
+endmenu

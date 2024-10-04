@@ -1,0 +1,10 @@
+menu "Library Select"
+
+config LIB_ENABLE
+    bool "Libaray Function Enable"
+    default y if LIB_A_ENABLE || LIB_B_ENABLE
+
+source "lib/func_a/Kconfig"
+source "lib/func_b/Kconfig"
+
+endmenu

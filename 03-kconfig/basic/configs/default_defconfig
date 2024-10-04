@@ -1,0 +1,25 @@
+
+#
+# Makefile Template
+#
+
+#
+# Library Select
+#
+CONFIG_LIB_ENABLE=y
+
+#
+# Library A Configuration
+#
+CONFIG_LIB_A_ENABLE=y
+CONFIG_LIB_A_PACKAGE=y
+# end of Library A Configuration
+
+#
+# Library B Configuration
+#
+CONFIG_LIB_B_ENABLE=y
+CONFIG_LIB_B_PACKAGE=y
+# end of Library B Configuration
+# end of Library Select
+# end of Makefile Template

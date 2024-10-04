@@ -1,0 +1,67 @@
+#
+# Copyright (c) 2024 by Zeepunt, All Rights Reserved. 
+#
+
+include $(ROOT_PATH)/scripts/Makefile.include
+
+# 清空环境变量
+obj-y    :=
+subdir-y :=
+
+# 因为是使用 make -C 进入子目录, 这里包含当前子目录的 Makefile
+# 其目的是拿到子目录 Makefile 中设置的 obj-y 和 subdir-y
+include Makefile
+
+# 获取当前运行的 Makefile 所在的目录, 并使用空格替换里面的 $(ROOT_PATH) 部分
+# 如果 ROOT_PATH 和 CURDIR 相同, patsubst 会返回原字符串, 这里单独处理下
+ifeq ($(ROOT_PATH), $(CURDIR))
+    cur_dir :
+else
+    cur_dir := $(patsubst $(ROOT_PATH)/%, %, $(CURDIR))
+endif
+# 去掉空格
+cur_dir := $(strip $(cur_dir))
+
+# 设置输出的目标路径(绝对路径)
+target_dir := $(BUILD_PATH)/$(cur_dir)
+# 去掉最后一个 /
+target_dir := $(patsubst %/, %, $(target_dir))
+
+# 使用 / 符号过滤, 拿到 obj-y 中的子目录, 比如从里面拿到 lib/
+_subdir-y := $(filter %/, $(obj-y))
+
+# 使用空格替换 /, 比如由 lib/ 改为 lib
+subdir-y += $(patsubst %/, %, $(_subdir-y))
+
+# 遍历所有子目录, 每个子目录都生成 $(target_dir)/built-in.o
+subdir_objs := $(foreach f, $(subdir-y), $(target_dir)/$(f)/built-in.o)
+
+# 使用 / 符号反过滤, 拿到当前目录中的非目录文件, 比如 func.o
+cur_objs := $(filter-out %/, $(obj-y))
+
+# 添加前缀, 比如 $(target_dir)/func.o
+cur_objs := $(addprefix $(target_dir)/, $(cur_objs))
+
+# 编译
+# 1. 如果依赖的目标是目录的话, make 会执行后续的命令来处理这个目录
+#    这里是递归调用 Makefile.build 编译规则, 生成这些目录及这些目录子目录的 built-in.o 文件
+# 2. 如果依赖的目标不是目录的话, 但这个目标不存在的话，则会先去生成这个目标
+PHONY :=
+PHONY += build
+build: $(subdir-y) $(target_dir)/built-in.o
+
+PHONY += $(subdir-y)
+$(subdir-y):
+	$(Q)$(MAKE) -C $@ $(build) build
+
+# -Wp,-MD,$@.d 生成名为 xxx.d 的依赖文件
+$(target_dir)/%.o : %.c
+	$(Q)mkdir -p $(target_dir)
+	$(CC) $(CC_FLAGS) $(CC_INCLUDES) -Wp,-MD,$@.d -c -o $@ $<
+
+# 1. 如果当前目录下没有子目录, 那就依赖当前目录中 .o 文件
+# 2. 如果当前目录下存在子目录, 那就依赖当前目录中 .o 文件和子目录中的 built-in.o 文件
+$(target_dir)/built-in.o : $(cur_objs) $(subdir_objs)
+	$(Q)$(LD) -r -o $@ $^
+
+.PHONY : $(PHONY)

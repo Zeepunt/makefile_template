@@ -1,8 +1,0 @@
-#
-# Copyright (c) 2024 by Zeepunt, All Rights Reserved. 
-#
-
-build := -f $(ROOT_PATH)/scripts/Makefile.build
-
-# @ 用来控制命令的显示, 比如 @rm xxx, 表示只显示必要的执行结果而不显示具体的执行命令, 也就是不会打印出 rm xxx 这一语句
-Q := @
